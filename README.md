@@ -1,5 +1,5 @@
 CUDAsph
 =======
 
-SPH code in CUDA
 
+SPH code in CUDA
