@@ -9,6 +9,7 @@
 #include "sph_grav_kernel.cu"
 #include <iostream>
 #include <cassert>
+#include "dev_textures.h"
 
 #define CUDA_SAFE_CALL(x)                                                    \
   do {                                                                         \
@@ -19,7 +20,7 @@
       exit(1);                                                                 \
     }                                                                          \
   } while (0);
-#define CUT_CHECK_ERROR(x) { assert(cudaGetLastError() && (x)); }
+#define CUT_CHECK_ERROR(x) { assert(cudaGetLastError() == cudaSuccess); }
 
 double get_time();
 
@@ -73,8 +74,8 @@ extern "C"
   }
   inline void threadSync() { cudaThreadSynchronize(); }
 
-  float host_solve_range(int n_bodies, int n_nodes,
-			 float rel_err,
+  float host_solve_range(int n_bodies, int host_n_nodes,
+			 float host_rel_err,
 			 KeyValuePair *bodies_hash,
 			 int    *bodies_map,
 			 float4 *bodies_pos,
@@ -94,11 +95,11 @@ extern "C"
     dim3 grid(n_bodies/p, 1, 1);
     
     /* set up a constant for relative error */
-    CUDA_SAFE_CALL(cudaMemcpyToSymbol("rel_err", &rel_err, 
+    CUDA_SAFE_CALL(cudaMemcpyToSymbol(rel_err, &host_rel_err, 
                                       sizeof(float), 0, 
                                       cudaMemcpyHostToDevice));
    
-    CUDA_SAFE_CALL(cudaMemcpyToSymbol("n_nodes", &n_nodes, 
+    CUDA_SAFE_CALL(cudaMemcpyToSymbol(n_nodes, &host_n_nodes, 
                                       sizeof(int), 0, 
                                       cudaMemcpyHostToDevice));
     
@@ -152,8 +153,8 @@ extern "C"
   }
   
   float host_sph_accelerations(int n_bodies, int ngb_tot,
-			       float av_alpha, 
-			       float av_beta,
+			       float host_av_alpha, 
+			       float host_av_beta,
 			       KeyValuePair *bodies_hash,
 			       KeyValuePair *bodies_hash_extra,
 			       int *bodies_map,
@@ -172,10 +173,10 @@ extern "C"
     dim3 threads(p,1,1);
     dim3 grid(n_bodies/p, 1, 1);
 
-    CUDA_SAFE_CALL(cudaMemcpyToSymbol("av_alpha", &av_alpha, 
+    CUDA_SAFE_CALL(cudaMemcpyToSymbol(av_alpha, &host_av_alpha, 
                                       sizeof(float), 0, 
                                       cudaMemcpyHostToDevice));
-    CUDA_SAFE_CALL(cudaMemcpyToSymbol("av_beta", &av_beta, 
+    CUDA_SAFE_CALL(cudaMemcpyToSymbol(av_beta, &host_av_beta, 
                                       sizeof(float), 0, 
                                       cudaMemcpyHostToDevice));
 
