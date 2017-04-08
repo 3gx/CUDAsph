@@ -33,7 +33,7 @@ LIBS = -L/usr/local/cuda/lib64 -lcudart
 all: $(PROG)
 
 $(PROG): $(OBJS) $(CUOBJS)
-	$(LD) $(CXXFLAGS) $(LIBS) $^ -o $@
+	$(LD) $(CXXFLAGS) $(LIBS) $^ -o $@ -lcudart
 
 .cpp.o: 
 	$(CXX) $(CXXFLAGS) -c $< -o $@

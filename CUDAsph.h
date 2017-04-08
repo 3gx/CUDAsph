@@ -153,7 +153,7 @@ public:
     FILE* fd;
     if ((fd = fopen("stop", "r"))) {
       fprintf(stderr, " >>> STOP file found. Terminating simulation. <<<  \n");
-      unlink("stop");
+//      unlink("stop");
       return false;
     }
     

@@ -1,4 +1,3 @@
-#include <cutil.h>
 
 #include "radixsort/radixsort.cuh"
 #include "dev_solve_range.cu"
@@ -8,6 +7,19 @@
 #include "dev_hydro_dots.cu"
 #include "dev_add_ngb_acc.cu"
 #include "sph_grav_kernel.cu"
+#include <iostream>
+#include <cassert>
+
+#define CUDA_SAFE_CALL(x)                                                    \
+  do {                                                                         \
+    cudaError_t error = x;                                                     \
+    if (error != cudaSuccess) {                                                \
+      const char *msg = cudaGetErrorName(error);                               \
+      std::cerr << "\nerror: " #x " failed with error " << msg << std::endl;   \
+      exit(1);                                                                 \
+    }                                                                          \
+  } while (0);
+#define CUT_CHECK_ERROR(x) { assert(cudaGetLastError() && (x)); }
 
 double get_time();
 
